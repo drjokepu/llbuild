@@ -1,0 +1,22 @@
+{
+  "name": "llbuild",
+  "version": "0.0.1",
+  "description": "Low level building tool for Node.js",
+  "main": "index.js",
+  "scripts": {
+    "doc": "node node_modules/jsdoc/jsdoc.js -P package.json --verbose -r -c jsdoc.conf.json -d ./doc/ .",
+    "test": "node node_modules/mocha/bin/mocha"
+  },
+  "keywords": [
+    "build"
+  ],
+  "author": "Tamas Czinege <tomi.czinege@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    
+  },
+  "devDependencies": {
+    "jsdoc": "3.4.0",
+    "mocha": "2.5.3"
+  }
+}
