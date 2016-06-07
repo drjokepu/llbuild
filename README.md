@@ -21,7 +21,7 @@ new LLBuild(targets).executeTarget('default').then(
     },
     function(err) {
         console.err(`Build failed: ${err}`);
-    })
+    }
 );
 
 ```
