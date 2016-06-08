@@ -20,7 +20,7 @@ new LLBuild(targets).executeTarget('default').then(
         console.log('Build complete.');
     },
     function(err) {
-        console.err(`Build failed: ${err}`);
+        console.error(err);
     }
 );
 
