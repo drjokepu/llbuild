@@ -336,4 +336,16 @@ describe('LLBuild', function() {
             });
         });
     });
+    
+    it('executeCommand', function() {
+        const nodeVer = process.version;
+        return LLBuild.executeCommand('node --version', true).then(function(output) {
+            const trimmedOutput = removeTrailingNewLine(output);
+            assert.strictEqual(nodeVer, trimmedOutput);
+        });
+    });
 });
+
+function removeTrailingNewLine(str) {
+    return str.replace(/(\n|\r)+$/, '');
+}
