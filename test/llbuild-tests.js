@@ -336,12 +336,23 @@ describe('LLBuild', function() {
             });
         });
     });
-    
-    it('executeCommand', function() {
-        const nodeVer = process.version;
-        return LLBuild.executeCommand('node --version', true).then(function(output) {
-            const trimmedOutput = removeTrailingNewLine(output);
-            assert.strictEqual(nodeVer, trimmedOutput);
+
+    describe('executeCommand', function() {
+        it('success', function() {
+            const nodeVer = process.version;
+            return LLBuild.executeCommand('node --version', true).then(function(output) {
+                const trimmedOutput = removeTrailingNewLine(output);
+                assert.strictEqual(nodeVer, trimmedOutput);
+            });
+        });
+
+        it('failure', function() {
+            return LLBuild.executeCommand('node --invalid-arg', true).then(function(output) {
+                return Promise.reject(new Error('Command was successful, but was expected to fail.'));
+            }, err => {
+                assert.strictEqual('Command failed: node --invalid-arg\nnode: bad option: --invalid-arg\n', err.message);
+                return Promise.resolve();
+            });
         });
     });
 });
