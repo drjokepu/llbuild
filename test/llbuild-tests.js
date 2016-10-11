@@ -350,7 +350,10 @@ describe('LLBuild', function() {
             return LLBuild.executeCommand('node --invalid-arg', true).then(function(output) {
                 return Promise.reject(new Error('Command was successful, but was expected to fail.'));
             }, err => {
-                assert.strictEqual('Command failed: node --invalid-arg\nnode: bad option: --invalid-arg\n', err.message);
+                const errorMessageTail = ' --invalid-arg\nnode: bad option: --invalid-arg\n';
+                assert.ok(err.message, 'err.message is null, undefined or empty');
+                assert.ok(err.message.length > errorMessageTail.length, 'err.message is not long enough: ' + err.message);
+                assert.strictEqual(errorMessageTail, err.message.substr(err.message.length - errorMessageTail.length));
                 return Promise.resolve();
             });
         });
