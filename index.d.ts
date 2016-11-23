@@ -1,3 +1,5 @@
+type EventType = 'targetExecutionStarted' | 'targetExecutionCompleted' | 'targetExecutionFailed';
+
 declare namespace llbuild {
     /** Describes a build target. */
     type Target = string | boolean | TargetRunner | TargetCollection | null | undefined;
@@ -12,6 +14,19 @@ declare namespace llbuild {
 
     interface TargetSet {
         [key: string]: Target;
+    }
+
+    interface TargetExecutionStartedEventArgs {
+        targetName: string;
+    }
+
+    interface TargetExecutionCompletedEventArgs {
+        targetName: string;
+    }
+
+    interface TargetExecutionFailedEventArgs {
+        targetName: string;
+        err: Error;
     }
 
     class LLBuild {
@@ -32,6 +47,37 @@ declare namespace llbuild {
          * @param context An optional context object to pass in to the target runner callbacks.
          */
         runArgs(context?: Context | null | undefined): Promise<void>;
+
+        /**
+         * Adds the listener function for the targetExecutionStarted event.
+         * @param eventName The name of the event.
+         * @param listener The callback function.
+         */
+        addListener(eventName: 'targetExecutionStarted', listener: (ev: TargetExecutionStartedEventArgs) => void): void;
+
+        /**
+         * Adds the listener function for the targetExecutionStarted event.
+         * @param eventName The name of the event.
+         * @param listener The callback function.
+         */
+        addListener(eventName: 'targetExecutionCompleted', listener: (ev: TargetExecutionCompletedEventArgs) => void): void;
+
+        /**
+         * Adds the listener function for the targetExecutionStarted event.
+         * @param eventName The name of the event.
+         * @param listener The callback function.
+         */
+        addListener(eventName: 'targetExecutionFailed', listener: (ev: TargetExecutionFailedEventArgs) => void): void;
+
+        /**
+         * Removes the specified listener from the event named eventName.
+         * @param eventName The name of the event.
+         * @param listener The callback function.
+         */
+        removeListener(eventName: EventType, listener: Function): void;
+
+        /** Removes all listeners. */
+        removeAllListeners(): void;
 
         /**
          * Executes the specified command as a child process.

@@ -14,4 +14,12 @@ function testRunner(): Promise<void> {
 }
 
 const builder = new LLBuild(targets);
+
+builder.addListener('targetExecutionStarted', (ev: llbuild.TargetExecutionStartedEventArgs) => { });
+builder.addListener('targetExecutionStarted', () => { });
+builder.addListener('targetExecutionCompleted', (ev: llbuild.TargetExecutionCompletedEventArgs) => { });
+builder.addListener('targetExecutionCompleted', () => { });
+builder.addListener('targetExecutionFailed', (ev: llbuild.TargetExecutionFailedEventArgs) => { });
+builder.addListener('targetExecutionFailed', () => { });
+
 builder.executeTarget('all', { q: 123 } ).then(() => { });
