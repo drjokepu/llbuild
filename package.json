@@ -5,6 +5,7 @@
   "homepage": "https://github.com/drjokepu/llbuild",
   "bugs": "https://github.com/drjokepu/llbuild/issues",
   "main": "index.js",
+  "types": "index.d.ts",
   "files": [
     "index.js",
     "lib"
@@ -31,7 +32,8 @@
   },
   "devDependencies": {
     "jsdoc": "3.4.3",
-    "mocha": "3.1.2"
+    "mocha": "3.1.2",
+    "typescript": "2.0.10"
   },
   "engines": {
     "node": ">=4.0"

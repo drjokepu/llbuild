@@ -1,6 +1,7 @@
 "use strict";
 
 const assert = require('assert');
+const path = require('path');
 const LLBuild = require('../index.js');
 
 describe('LLBuild', function() {
@@ -357,6 +358,12 @@ describe('LLBuild', function() {
                 return Promise.resolve();
             });
         });
+    });
+});
+
+describe('typings', function() {
+    it('TypeScript', function() {
+        return LLBuild.executeCommand(`node "${path.resolve(__dirname, '..', 'node_modules', 'typescript', 'bin', 'tsc')}" -p "${path.resolve(__dirname, 'typing-test')}"`, true);
     });
 });
 
