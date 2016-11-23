@@ -363,6 +363,7 @@ describe('LLBuild', function() {
 
 describe('typings', function() {
     it('TypeScript', function() {
+        this.timeout(10000);
         return LLBuild.executeCommand(`node "${path.resolve(__dirname, '..', 'node_modules', 'typescript', 'bin', 'tsc')}" -p "${path.resolve(__dirname, 'typing-test')}"`, true);
     });
 });
