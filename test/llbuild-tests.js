@@ -341,14 +341,14 @@ describe('LLBuild', function() {
     describe('executeCommand', function() {
         it('success', function() {
             const nodeVer = process.version;
-            return LLBuild.executeCommand('node --version', true).then(function(output) {
+            return new LLBuild({ }, { quiet: true }).executeCommand('node --version', null).then(function(output) {
                 const trimmedOutput = removeTrailingNewLine(output);
                 assert.strictEqual(nodeVer, trimmedOutput);
             });
         });
 
         it('failure', function() {
-            return LLBuild.executeCommand('node --invalid-arg', true).then(function(output) {
+            return new LLBuild({ }, { quiet: true }).executeCommand('node --invalid-arg', null).then(function(output) {
                 return Promise.reject(new Error('Command was successful, but was expected to fail.'));
             }, err => {
                 const errorMessageTail = ' --invalid-arg\nnode: bad option: --invalid-arg\n';
@@ -441,13 +441,113 @@ describe('LLBuild', function() {
                 }
             });
         });
+
+        it('buildStarted', function() {
+            const targets = {
+                'test': function() { return Promise.resolve(); }
+            };
+
+            let didEmitEvent = false;
+
+            const llbuild = new LLBuild(targets);
+            llbuild.addListener('buildStarted', function() {
+                didEmitEvent = true;
+            });
+
+            return llbuild.executeTarget('test').then(() => {
+                if (didEmitEvent) {
+                    return Promise.resolve();
+                } else {
+                    return Promise.reject(new Error('Did not emit buildStarted event.'));
+                }
+            });
+        });
+
+        it('buildComplete', function() {
+            const targets = {
+                'test': function() { return Promise.resolve(); }
+            };
+
+            let didEmitEvent = false;
+            let didEmitOtherEvent = false;
+
+            const llbuild = new LLBuild(targets);
+            llbuild.addListener('buildComplete', function() {
+                didEmitEvent = true;
+            });
+
+            llbuild.addListener('buildFailed', function() {
+                didEmitOtherEvent = true;
+            });
+
+            return llbuild.executeTarget('test').then(() => {
+                if (didEmitEvent) {
+                    if (didEmitOtherEvent) {
+                        return Promise.reject(new Error('Did unexpectedly emit buildFailed event.'));
+                    } else {
+                        return Promise.resolve();
+                    }
+                } else {
+                    return Promise.reject(new Error('Did not emit buildComplete event.'));
+                }
+            });
+        });
+
+        it('buildFailed', function() {
+            const targets = {
+                'test': function() { return Promise.reject(new Error('Test Error')); }
+            };
+
+            let didEmitEvent = false;
+            let didEmitOtherEvent = false;
+
+            const llbuild = new LLBuild(targets);
+            llbuild.addListener('buildFailed', function() {
+                didEmitEvent = true;
+            });
+
+            llbuild.addListener('buildComplete', function() {
+                didEmitOtherEvent = true;
+            });
+
+            return llbuild.executeTarget('test').catch(err => { return Promise.resolve(); }).then(() => {
+                if (didEmitEvent) {
+                    if (didEmitOtherEvent) {
+                        return Promise.reject(new Error('Did unexpectedly emit buildComplete event.'));
+                    } else {
+                        return Promise.resolve();
+                    }
+                } else {
+                    return Promise.reject(new Error('Did not emit buildFailed event.'));
+                }
+            });
+        });
+
+        it('consoleOutput', function() {
+            const targets = {
+                'all': [true, 'test1', 'test2'],
+                'test1': function(b) { b.print('test1'); return Promise.resolve(); },
+                'test2': function(b) { b.print('test2'); return Promise.resolve(); }
+            };
+
+            let outputStr = '';
+
+            const llbuild = new LLBuild(targets, { quiet: true });
+            llbuild.addListener('consoleOutput', function(ev) {
+                outputStr += ev.content;
+            });
+
+            return llbuild.executeTarget('all').then(() => {
+                assert.strictEqual(outputStr, 'test1test2');
+            });
+        })
     });
 });
 
 describe('typings', function() {
     it('TypeScript', function() {
         this.timeout(10000);
-        return LLBuild.executeCommand(`node "${path.resolve(__dirname, '..', 'node_modules', 'typescript', 'bin', 'tsc')}" -p "${path.resolve(__dirname, 'typing-test')}"`, true);
+        return new LLBuild({ }, { quiet: true }).executeCommand(`node "${path.resolve(__dirname, '..', 'node_modules', 'typescript', 'bin', 'tsc')}" -p "${path.resolve(__dirname, 'typing-test')}"`, null, true);
     });
 });
 

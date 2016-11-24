@@ -16,6 +16,14 @@ declare namespace llbuild {
         [key: string]: Target;
     }
 
+    /** Options passed in to the LLBuild constructor. */
+    interface LLBuildOptions {
+        /** If true, the builder will not print to the standard output and standard error */
+        quiet?: boolean;
+        /** The maximum size of the stdout and stderr buffers (default is 200 * 1024). */
+        maxBufferSize?: number;
+    }
+
     interface TargetExecutionStartedEventArgs {
         targetName: string;
     }
@@ -33,8 +41,9 @@ declare namespace llbuild {
         /**
          * Creates a new builder instance.
          * @param targets An optional object with string keys representing the target names and the associated values representing the targets.
+         * @param options A set of options controlling the behaviour of the builder instance.
          */
-        constructor(targets: TargetSet);
+        constructor(targets: TargetSet, options?: LLBuildOptions);
 
         /**
          * @param target The target to execute.
@@ -82,24 +91,30 @@ declare namespace llbuild {
         /**
          * Executes the specified command as a child process.
          * @param cmd The command to execute.
-         * @param quiet Disables printing to the standard output and standard error.
-         * @param maxBuffer The maximum size of the stdout and stderr buffers (default is 200 * 1024).
+         * @param targetName The target the command execution is associated with, or null.
          */
-        static executeCommand(cmd: string, quiet?: boolean, maxBuffer?: number): Promise<void>;
+        executeCommand(cmd: string, targetName?: string | null | undefined): Promise<void>;
 
         /**
          * Creates a directory recursively.
          * @param path The path of the directory to create.
-         * @param quiet Disables printing to the standard output.
+         * @param targetName The target the operation is associated with, or null.
          */
-        static mkdirp(path: string, quiet?: boolean): Promise<void>;
+        mkdirp(path: string, targetName?: string | null | undefined): Promise<void>;
 
         /**
          * Recursively removes a file or directory.
          * @param path The path of the file or directory to remove.
-         * @param quiet Disables printing to the standard output.
+         * @param targetName The target the operation is associated with, or null.
          */
-        static rmrf(path: string, quiet?: boolean): Promise<void>;
+        rmrf(path: string, targetName?: string | null | undefined): Promise<void>;
+
+        /**
+         * Prints the specified content to the standard output.
+         * @param content The content to be printed.
+         * @param targetName The target the message is associated with, or null.
+         */
+        print(content: string, targetName?: string | null | undefined): void;
     }
 
     module LLBuild {
