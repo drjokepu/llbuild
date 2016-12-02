@@ -38,6 +38,8 @@ declare namespace llbuild {
     }
 
     class LLBuild {
+        name: string;
+
         /**
          * Creates a new builder instance.
          * @param targets An optional object with string keys representing the target names and the associated values representing the targets.
