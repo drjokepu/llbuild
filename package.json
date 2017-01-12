@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "jsdoc": "3.4.3",
-    "mocha": "3.1.2",
+    "mocha": "3.2.0",
     "typescript": "2.1.5"
   },
   "engines": {
