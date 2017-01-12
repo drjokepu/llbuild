@@ -33,7 +33,7 @@
   "devDependencies": {
     "jsdoc": "3.4.3",
     "mocha": "3.1.2",
-    "typescript": "2.0.10"
+    "typescript": "2.1.5"
   },
   "engines": {
     "node": ">=4.0"
