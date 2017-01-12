@@ -35,3 +35,13 @@ builder.addListener('targetExecutionFailed', (ev: llbuild.TargetExecutionFailedE
 builder.addListener('targetExecutionFailed', () => { });
 
 builder.executeTarget('all', { q: 123 } ).then(() => { });
+
+LLBuild.executeCommand('touch test/exec_static0.txt');
+LLBuild.executeCommand('touch test/exec_static0.txt', false);
+LLBuild.executeCommand('touch test/exec_static0.txt', true, 4096);
+
+LLBuild.mkdirp('test/test2');
+LLBuild.mkdirp('test/test3', true);
+
+LLBuild.rmrf('test/test4');
+LLBuild.rmrf('test/test5', true);

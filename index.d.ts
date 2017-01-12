@@ -98,6 +98,14 @@ declare namespace llbuild {
         executeCommand(cmd: string, targetName?: string | null | undefined): Promise<void>;
 
         /**
+         * Executes the specified command as a child process.
+         * @param cmd The command to execute.
+         * @param quiet Disables printing to the standard output and standard error.
+         * @param maxBuffer The maximum size of the stdout and stderr buffers (default is 200 * 1024).
+         */
+        static executeCommand(cmd: string, quiet?: boolean, maxBuffer?: number): Promise<void>;
+
+        /**
          * Creates a directory recursively.
          * @param path The path of the directory to create.
          * @param targetName The target the operation is associated with, or null.
@@ -105,11 +113,25 @@ declare namespace llbuild {
         mkdirp(path: string, targetName?: string | null | undefined): Promise<void>;
 
         /**
+         * Creates a directory recursively.
+         * @param path The path of the directory to create.
+         * @param quiet Disables printing to the standard output.
+         */
+        static mkdirp(path: string, quiet?: boolean): Promise<void>;
+
+        /**
          * Recursively removes a file or directory.
          * @param path The path of the file or directory to remove.
          * @param targetName The target the operation is associated with, or null.
          */
         rmrf(path: string, targetName?: string | null | undefined): Promise<void>;
+
+        /**
+         * Recursively removes a file or directory.
+         * @param path The path of the file or directory to remove.
+         * @param argetName The target the operation is associated with, or null.
+         */
+        static rmrf(path: string, quiet?: boolean): Promise<void>;
 
         /**
          * Prints the specified content to the standard output.

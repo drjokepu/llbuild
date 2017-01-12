@@ -1,7 +1,11 @@
 "use strict";
 
 const assert = require('assert');
+const fs = require('fs');
 const path = require('path');
+const mkdirp = require('mkdirp');
+const rimraf = require('rimraf');
+
 const LLBuild = require('../index.js');
 
 describe('LLBuild', function() {
@@ -339,24 +343,140 @@ describe('LLBuild', function() {
     });
 
     describe('executeCommand', function() {
-        it('success', function() {
-            const nodeVer = process.version;
-            return new LLBuild({ }, { quiet: true }).executeCommand('node --version', null).then(function(output) {
-                const trimmedOutput = removeTrailingNewLine(output);
-                assert.strictEqual(nodeVer, trimmedOutput);
+        describe('instance', function() {
+            it('success', function() {
+                const nodeVer = process.version;
+                return new LLBuild({ }, { quiet: true }).executeCommand('node --version', null).then(function(output) {
+                    const trimmedOutput = removeTrailingNewLine(output);
+                    assert.strictEqual(nodeVer, trimmedOutput);
+                });
+            });
+
+            it('failure', function() {
+                return new LLBuild({ }, { quiet: true }).executeCommand('node --invalid-arg', null).then(function(output) {
+                    return Promise.reject(new Error('Command was successful, but was expected to fail.'));
+                }, err => {
+                    const errorMessageTail = ' --invalid-arg\nnode: bad option: --invalid-arg\n';
+                    assert.ok(err.message, 'err.message is null, undefined or empty');
+                    assert.ok(err.message.length > errorMessageTail.length, 'err.message is not long enough: ' + err.message);
+                    assert.strictEqual(errorMessageTail, err.message.substr(err.message.length - errorMessageTail.length));
+                    return Promise.resolve();
+                });
             });
         });
 
-        it('failure', function() {
-            return new LLBuild({ }, { quiet: true }).executeCommand('node --invalid-arg', null).then(function(output) {
-                return Promise.reject(new Error('Command was successful, but was expected to fail.'));
-            }, err => {
-                const errorMessageTail = ' --invalid-arg\nnode: bad option: --invalid-arg\n';
-                assert.ok(err.message, 'err.message is null, undefined or empty');
-                assert.ok(err.message.length > errorMessageTail.length, 'err.message is not long enough: ' + err.message);
-                assert.strictEqual(errorMessageTail, err.message.substr(err.message.length - errorMessageTail.length));
-                return Promise.resolve();
+        describe('static', function() {
+            it('success', function() {
+                const nodeVer = process.version;
+                return LLBuild.executeCommand('node --version', true).then(function(output) {
+                    const trimmedOutput = removeTrailingNewLine(output);
+                    assert.strictEqual(nodeVer, trimmedOutput);
+                });
             });
+
+            it('failure', function() {
+                return LLBuild.executeCommand('node --invalid-arg', true).then(function(output) {
+                    return Promise.reject(new Error('Command was successful, but was expected to fail.'));
+                }, err => {
+                    const errorMessageTail = ' --invalid-arg\nnode: bad option: --invalid-arg\n';
+                    assert.ok(err.message, 'err.message is null, undefined or empty');
+                    assert.ok(err.message.length > errorMessageTail.length, 'err.message is not long enough: ' + err.message);
+                    assert.strictEqual(errorMessageTail, err.message.substr(err.message.length - errorMessageTail.length));
+                    return Promise.resolve();
+                });
+            });
+        });
+    });
+
+    describe('mkdirp', function() {
+        it('instance', function() {
+            const fpath = path.resolve(testFolderPath(), 'mkdirp_test', 'test1', 'test2');
+            return makeTestFolder().then(function() {
+                return new LLBuild({ }, { quiet: true }).mkdirp(fpath, null);
+            }).then(function() {
+                return new Promise(function (resolve, reject) {
+                    fs.stat(fpath, function(err, stats) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            if (stats.isDirectory()) {
+                                resolve();
+                            } else {
+                                reject(new Error('Output of mkdirp is not a directory'));
+                            }
+                        }
+                    });
+                });
+            }).then(removeTestFolder);
+        });
+
+        it('static', function() {
+            const fpath = path.resolve(testFolderPath(), 'mkdirp_test', 'test1', 'test2');
+            return makeTestFolder().then(function() {
+                return LLBuild.mkdirp(fpath, true);
+            }).then(function() {
+                return new Promise(function (resolve, reject) {
+                    fs.stat(fpath, function(err, stats) {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            if (stats.isDirectory()) {
+                                resolve();
+                            } else {
+                                reject(new Error('Output of mkdirp is not a directory'));
+                            }
+                        }
+                    });
+                });
+            }).then(removeTestFolder);
+        });
+    });
+
+    describe('rmrf', function() {
+        it('instance', function() {
+            const fpath = path.resolve(testFolderPath(), 'rmrftest');
+            return makeTestFolder().then(function() {
+                return new LLBuild({ }, { quiet: true }).mkdirp(path.resolve(fpath, 'testA', 'testB', 'testC'), null);
+            }).then(function() {
+                return new LLBuild({ }, { quiet: true }).rmrf(fpath, null);
+            }).then(function() {
+                return new Promise(function (resolve, reject) {
+                    fs.stat(fpath, function(err, stats) {
+                        if (err) {
+                            if (err.code === 'ENOENT') {
+                                resolve();
+                            } else {
+                                reject(err);
+                            }
+                        } else {
+                            reject(new Error('Deleted folder still exists.'));
+                        }
+                    });
+                });
+            }).then(removeTestFolder);
+        });
+
+        it('static', function() {
+            const fpath = path.resolve(testFolderPath(), 'rmrftest');
+            return makeTestFolder().then(function() {
+                return new LLBuild({ }, { quiet: true }).mkdirp(path.resolve(fpath, 'testA', 'testB', 'testC'), null);
+            }).then(function() {
+                return LLBuild.rmrf(fpath, true);
+            }).then(function() {
+                return new Promise(function (resolve, reject) {
+                    fs.stat(fpath, function(err, stats) {
+                        if (err) {
+                            if (err.code === 'ENOENT') {
+                                resolve();
+                            } else {
+                                reject(err);
+                            }
+                        } else {
+                            reject(new Error('Deleted folder still exists.'));
+                        }
+                    });
+                });
+            }).then(removeTestFolder);
         });
     });
 
@@ -553,4 +673,34 @@ describe('typings', function() {
 
 function removeTrailingNewLine(str) {
     return str.replace(/(\n|\r)+$/, '');
+}
+
+function testFolderPath() {
+    return path.resolve(__dirname, 'tmp');
+}
+
+function makeTestFolder() {
+    return removeTestFolder().then(function() {
+        return new Promise(function(resolve, reject) {
+            mkdirp(testFolderPath(), function(err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
+    });
+}
+
+function removeTestFolder() {
+    return new Promise(function(resolve, reject) {
+        rimraf(testFolderPath(), function(err) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        });
+    });
 }
