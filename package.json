@@ -28,12 +28,12 @@
   "license": "MIT",
   "dependencies": {
     "mkdirp": "0.5.1",
-    "rimraf": "2.6.1"
+    "rimraf": "2.6.2"
   },
   "devDependencies": {
-    "jsdoc": "3.4.3",
-    "mocha": "3.4.2",
-    "typescript": "2.3.4"
+    "jsdoc": "3.5.5",
+    "mocha": "5.0.4",
+    "typescript": "2.7.2"
   },
   "engines": {
     "node": ">=4.0"
