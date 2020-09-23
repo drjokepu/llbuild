@@ -680,17 +680,7 @@ function testFolderPath() {
 }
 
 function makeTestFolder() {
-    return removeTestFolder().then(function() {
-        return new Promise(function(resolve, reject) {
-            mkdirp(testFolderPath(), function(err) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
-        });
-    });
+    return removeTestFolder().then(mkdirp(testFolderPath()));
 }
 
 function removeTestFolder() {
