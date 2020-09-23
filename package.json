@@ -28,7 +28,7 @@
   "license": "MIT",
   "dependencies": {
     "mkdirp": "1.0.4",
-    "rimraf": "2.6.2"
+    "rimraf": "3.0.2"
   },
   "devDependencies": {
     "jsdoc": "3.6.6",
