@@ -1,6 +1,7 @@
 "use strict";
 
 const assert = require('assert');
+const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const mkdirp = require('mkdirp');
@@ -664,6 +665,75 @@ describe('LLBuild', function() {
     });
 });
 
+describe('exit code', function() {
+    it('success', function() {
+        const buildJsPath = path.join(testFolderPath(), 'build.js');
+        return makeTestFolder().then(() => new Promise((resolve, reject) => {
+            fs.writeFile(
+                buildJsPath, (
+                    'const process = require(\'process\');\n' +
+                    'const LLBuild = require(\'../../index.js\');\n' +
+                    'const targets = { \'version\': () => LLBuild.executeCommand(\'node --version\') };\n' +
+                    'process.on(\'unhandledRejection\', reason => { console.log(reason); process.exit(1); });\n' +
+                    'new LLBuild(targets).executeTarget(\'version\');\n'
+                ),
+                err => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    } else {
+                        resolve();
+                    }
+                }
+            );
+        })).then(() => new Promise((resolve, reject) => {
+            const cp = childProcess.exec(`node "${buildJsPath}"`, err => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                assert.strictEqual(cp.exitCode, 0);
+                resolve();
+            });
+        })).then(removeTestFolder);
+    });
+
+    it('failure', function() {
+        const buildJsPath = path.join(testFolderPath(), 'build.js');
+        return makeTestFolder().then(() => new Promise((resolve, reject) => {
+            fs.writeFile(
+                buildJsPath, (
+                    'const process = require(\'process\');\n' +
+                    'const LLBuild = require(\'../../index.js\');\n' +
+                    'const targets = { \'invalidArg\': () => LLBuild.executeCommand(\'node --invalid-arg\') };\n' +
+                    'process.on(\'unhandledRejection\', reason => { console.log(reason); process.exit(1); });\n' +
+                    'new LLBuild(targets).executeTarget(\'invalidArg\');\n'
+                ),
+                err => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    } else {
+                        resolve();
+                    }
+                }
+            );
+        })).then(() => new Promise((resolve, reject) => {
+            const cp = childProcess.exec(`node "${buildJsPath}"`, err => {
+                if (!err) {
+                    assert.fail('Child process was expected to fail.');
+                    return;
+                }
+
+                assert.strictEqual(cp.exitCode, 1);
+                resolve();
+            });
+
+        })).then(removeTestFolder);
+    });
+});
+
 describe('typings', function() {
     it('TypeScript', function() {
         this.timeout(10000);
@@ -680,7 +750,7 @@ function testFolderPath() {
 }
 
 function makeTestFolder() {
-    return removeTestFolder().then(mkdirp(testFolderPath()));
+    return removeTestFolder().then(() => mkdirp(testFolderPath()));
 }
 
 function removeTestFolder() {
