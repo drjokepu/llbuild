@@ -1,4 +1,4 @@
-# llbuild [![Build Status](https://travis-ci.org/drjokepu/pgsubst.svg?branch=master)](https://travis-ci.org/drjokepu/pgsubst)
+# llbuild [![Build Status](https://travis-ci.org/drjokepu/llbuild.svg?branch=master)](https://travis-ci.org/drjokepu/llbuild)
 ## Low level build tool for Node.js
 
 ### Usage
