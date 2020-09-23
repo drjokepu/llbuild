@@ -1,6 +1,6 @@
 {
   "name": "llbuild",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "Low level build tool for Node.js",
   "homepage": "https://github.com/drjokepu/llbuild",
   "bugs": "https://github.com/drjokepu/llbuild/issues",
